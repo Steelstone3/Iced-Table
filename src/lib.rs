@@ -139,6 +139,6 @@ fn owned_rows(rows: Vec<&str>) -> Vec<String> {
     row_strings
 }
 
-fn referenced_rows(rows: &Vec<String>) -> Vec<&str> {
+fn referenced_rows(rows: &[String]) -> Vec<&str> {
     rows.iter().map(|s| s.as_str()).collect()
 }
