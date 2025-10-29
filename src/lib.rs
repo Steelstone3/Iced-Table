@@ -99,15 +99,9 @@ impl Table {
             None => Color::from_rgb(0.0, 0.0, 0.0),
         };
 
-        let text_size = match text_size {
-            Some(text_size) => text_size,
-            None => 16,
-        };
+        let text_size = text_size.unwrap_or(16);
 
-        let padding = match padding {
-            Some(padding) => padding,
-            None => 2,
-        };
+        let padding = padding.unwrap_or(2);
 
         for row in rows.into_iter() {
             data_row.push(
