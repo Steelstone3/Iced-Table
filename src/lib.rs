@@ -21,14 +21,30 @@ impl Table {
         Self { rows: new_rows }
     }
 
-    /// Add headers to the table
+    /// Add a row of headers to the table at the top
     pub fn add_headers(&mut self, headers: Vec<&str>) {
         self.rows.insert(0, owned_rows(headers));
     }
 
+    /// Add a data row to the table
+    pub fn add_row(&mut self, row: Vec<&str>) {
+        self.rows.push(owned_rows(row));
+    }
+
     /// Add data rows to the table
-    pub fn add_row(&mut self, rows: Vec<&str>) {
-        self.rows.push(owned_rows(rows));
+    /// Type must implement "to_string()"
+    pub fn add_rows<T>(&mut self, rows: Vec<Vec<T>>)
+    where
+        T: ToString,
+    {
+        for row_of_type in rows {
+            let row = row_of_type
+                .iter()
+                .map(|item| item.to_string())
+                .collect::<Vec<String>>();
+
+            self.rows.push(row);
+        }
     }
 
     /// Constructs a visually styled table component from structured data.
@@ -99,15 +115,9 @@ impl Table {
             None => Color::from_rgb(0.0, 0.0, 0.0),
         };
 
-        let text_size = match text_size {
-            Some(text_size) => text_size,
-            None => 16,
-        };
+        let text_size = text_size.unwrap_or(16);
 
-        let padding = match padding {
-            Some(padding) => padding,
-            None => 2,
-        };
+        let padding = padding.unwrap_or(2);
 
         for row in rows.into_iter() {
             data_row.push(
@@ -145,6 +155,6 @@ fn owned_rows(rows: Vec<&str>) -> Vec<String> {
     row_strings
 }
 
-fn referenced_rows(rows: &Vec<String>) -> Vec<&str> {
+fn referenced_rows(rows: &[String]) -> Vec<&str> {
     rows.iter().map(|s| s.as_str()).collect()
 }
