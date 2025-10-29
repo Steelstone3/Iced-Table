@@ -2,6 +2,7 @@ use iced::{
     Border, Color, Element, Length, Renderer, Theme,
     widget::{Column, Container, Row, container::Style, text},
 };
+use std::fmt::Display;
 
 #[derive(Default, Debug, Clone)]
 pub struct Table {
@@ -11,39 +12,44 @@ pub struct Table {
 impl Table {
     /// Typically use Table::default() then build using add_headers() and add_row()
     /// However can provide a list of headers and rows to create Table
-    pub fn new(headers: Vec<&str>, rows: Vec<Vec<&str>>) -> Self {
+    pub fn new<T>(headers: Vec<T>, rows: Vec<Vec<T>>) -> Self
+    where
+        T: ToString + Display,
+    {
         let mut new_rows: Vec<Vec<String>> = vec![];
-        new_rows.push(owned_rows(headers));
+
+        new_rows.push(own_row_generic(headers));
         for row in rows {
-            new_rows.push(owned_rows(row));
+            new_rows.push(own_row_generic(row));
         }
 
         Self { rows: new_rows }
     }
 
     /// Add a row of headers to the table at the top
-    pub fn add_headers(&mut self, headers: Vec<&str>) {
-        self.rows.insert(0, owned_rows(headers));
+    pub fn add_headers<T>(&mut self, headers: Vec<T>)
+    where
+        T: ToString + Display,
+    {
+        self.rows.insert(0, own_row_generic(headers));
     }
 
     /// Add a data row to the table
-    pub fn add_row(&mut self, row: Vec<&str>) {
-        self.rows.push(owned_rows(row));
+    pub fn add_row<T>(&mut self, row: Vec<T>)
+    where
+        T: ToString + Display,
+    {
+        self.rows.push(own_row_generic(row));
     }
 
     /// Add data rows to the table
     /// Type must implement "to_string()"
     pub fn add_rows<T>(&mut self, rows: Vec<Vec<T>>)
     where
-        T: ToString,
+        T: ToString + Display,
     {
-        for row_of_type in rows {
-            let row = row_of_type
-                .iter()
-                .map(|item| item.to_string())
-                .collect::<Vec<String>>();
-
-            self.rows.push(row);
+        for row in rows {
+            self.rows.push(own_row_generic(row));
         }
     }
 
@@ -84,7 +90,7 @@ impl Table {
 
         // with header and rows
         for row in table_data.rows {
-            let row = Table::with_row(referenced_rows(&row), color, text_size, padding);
+            let row = Table::with_row(referenced_row(&row), color, text_size, padding);
 
             table = table.push(row);
         }
@@ -108,7 +114,7 @@ impl Table {
         Message: Clone + Send + Sync + 'static,
     {
         let mut data_row = vec![];
-        let rows = owned_rows(rows);
+        let rows = owned_row(rows);
 
         let color = match color {
             Some(color) => color,
@@ -149,12 +155,19 @@ fn table_theme(color: Color) -> Style {
     }
 }
 
-fn owned_rows(rows: Vec<&str>) -> Vec<String> {
-    let row_strings: Vec<String> = rows.iter().map(|s| s.to_string()).collect();
-
-    row_strings
+fn owned_row(row: Vec<&str>) -> Vec<String> {
+    row.iter().map(|s| s.to_string()).collect()
 }
 
-fn referenced_rows(rows: &[String]) -> Vec<&str> {
-    rows.iter().map(|s| s.as_str()).collect()
+fn own_row_generic<T>(row: Vec<T>) -> Vec<String>
+where
+    T: ToString + Display,
+{
+    row.into_iter()
+        .map(|item| item.to_string())
+        .collect::<Vec<String>>()
+}
+
+fn referenced_row(row: &[String]) -> Vec<&str> {
+    row.iter().map(|s| s.as_str()).collect()
 }
