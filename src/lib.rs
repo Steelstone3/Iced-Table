@@ -21,14 +21,30 @@ impl Table {
         Self { rows: new_rows }
     }
 
-    /// Add headers to the table
+    /// Add a row of headers to the table at the top
     pub fn add_headers(&mut self, headers: Vec<&str>) {
         self.rows.insert(0, owned_rows(headers));
     }
 
-    /// Add data rows to the table
-    pub fn add_row(&mut self, rows: Vec<&str>) {
-        self.rows.push(owned_rows(rows));
+    /// Add a data row to the table
+    pub fn add_row(&mut self, row: Vec<&str>) {
+        self.rows.push(owned_rows(row));
+    }
+
+     /// Add data rows to the table
+     /// Type must implement "to_string()"
+    pub fn add_rows<T>(&mut self, rows: Vec<Vec<T>>)
+    where
+        T: ToString,
+    {
+        for row_of_type in rows {
+            let row = row_of_type
+                .iter()
+                .map(|item| item.to_string())
+                .collect::<Vec<String>>();
+
+            self.rows.push(row);
+        }
     }
 
     /// Constructs a visually styled table component from structured data.
