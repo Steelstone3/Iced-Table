@@ -1,5 +1,5 @@
 use iced::{
-    Border, Color, Element, Length, Renderer, Theme,
+    Border, Color, Element, Length, Pixels, Renderer, Theme,
     widget::{Column, Container, Row, container::Style, text},
 };
 use std::fmt::Display;
@@ -80,7 +80,7 @@ impl Table {
         table_data: Table,
         color: Option<Color>,
         width: Option<f32>,
-        text_size: Option<u16>,
+        text_size: Option<Pixels>,
         padding: Option<u16>,
     ) -> Element<'static, Message>
     where
@@ -107,7 +107,7 @@ impl Table {
     fn with_row<Message>(
         rows: Vec<&str>,
         color: Option<Color>,
-        text_size: Option<u16>,
+        text_size: Option<Pixels>,
         padding: Option<u16>,
     ) -> Row<'static, Message>
     where
@@ -121,7 +121,7 @@ impl Table {
             None => Color::from_rgb(0.0, 0.0, 0.0),
         };
 
-        let text_size = text_size.unwrap_or(16);
+        let text_size = text_size.unwrap_or(16.into());
 
         let padding = padding.unwrap_or(2);
 
@@ -152,6 +152,7 @@ fn table_theme(color: Color) -> Style {
             radius: Default::default(),
         },
         shadow: Default::default(),
+        snap: Default::default(),
     }
 }
 
